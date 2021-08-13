@@ -1,0 +1,24 @@
+    // Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWStructuredBuffer<float3> _VPositions;
+
+int _Resolution;
+float _Time;
+float _Speed;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint numStructs;
+    uint stride;    
+    _VPositions.GetDimensions(numStructs, stride);
+    
+    if (id.x < _Resolution && id.y < numStructs / _Resolution)
+    {
+        float3 v = normalize(_VPositions[id.x + id.y * _Resolution] - float3(0,0,0));
+        _VPositions[id.x + id.y * _Resolution] += _Speed * v * _Time;
+    }
+}
